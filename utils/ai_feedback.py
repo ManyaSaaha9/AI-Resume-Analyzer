@@ -1,4 +1,5 @@
 import os
+import streamlit as st
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -9,6 +10,7 @@ client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
+@st.cache_data(show_spinner=False)
 def generate_ai_feedback(resume, jd):
 
     prompt = f"""
@@ -35,17 +37,29 @@ def generate_ai_feedback(resume, jd):
 
     return response.choices[0].message.content
 
+@st.cache_data(show_spinner=False)
 def tailor_resume(resume, jd):
 
     prompt = f"""
-    Tailor this resume for the job description.
+You are an expert ATS resume writer.
 
-    Resume:
-    {resume}
+Rewrite and tailor the resume
+for the given job description.
 
-    Job Description:
-    {jd}
-    """
+IMPORTANT RULES:
+- Return ONLY the tailored resume
+- Do NOT add introductions
+- Do NOT add explanations
+- Do NOT add conclusions
+- Do NOT say "Here is the resume"
+- Output must look like a professional resume
+
+Resume:
+{resume}
+
+Job Description:
+{jd}
+"""
 
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",

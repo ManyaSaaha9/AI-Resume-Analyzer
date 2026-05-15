@@ -1,17 +1,35 @@
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-
-model = SentenceTransformer(
-    'all-MiniLM-L6-v2'
+from sentence_transformers import (
+    SentenceTransformer
 )
 
-def calculate_similarity(resume, jd):
+from sklearn.metrics.pairwise import (
+    cosine_similarity
+)
 
-    embeddings = model.encode([resume, jd])
+# -----------------------------------
+# CALCULATE ATS SCORE
+# -----------------------------------
+
+def calculate_similarity(
+    resume,
+    jd
+):
+
+    # Load model ONLY when needed
+    model = SentenceTransformer(
+        'all-MiniLM-L6-v2'
+    )
+
+    embeddings = model.encode(
+        [resume, jd]
+    )
 
     similarity = cosine_similarity(
         [embeddings[0]],
         [embeddings[1]]
     )[0][0]
 
-    return round(similarity * 100, 2)
+    return round(
+        similarity * 100,
+        2
+    )
