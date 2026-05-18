@@ -24,3 +24,4 @@ An AI-powered ATS Resume Analyzer built using:
 - Groq API
 - Sentence Transformers
 - Plotly
+Updated deployment
