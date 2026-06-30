@@ -9,10 +9,23 @@ import streamlit as st
 # -----------------------------------
 
 st.set_page_config(
-    page_title="AI Resume Analyzer",
+    page_title="ClockIt 🤏",
+    page_icon="🤏",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# -----------------------------------
+# LOAD CUSTOM CSS
+# -----------------------------------
+def load_css():
+    try:
+        with open("assets/style.css", "r") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass
+
+load_css()
 
 # -----------------------------------
 # HIDE TRANSFORMER WARNINGS
@@ -49,39 +62,27 @@ from utils.skill_extractor import (
 
 st.sidebar.markdown(
     """
-# 🚀 AI Career Platform
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1 style="font-size: 2rem; margin-bottom: 5px;">🤏 ClockIt</h1>
+    <p style="color: #a1a1aa; font-size: 0.9rem;">Your AI Career Copilot</p>
+</div>
 
 ---
 
-## 🔥 Features
+### ⚡ Superpowers
 
-✅ ATS Resume Scoring
-
-✅ AI Feedback
-
-✅ Resume Tailoring
-
-✅ Internship Recommendations
-
-✅ Career Copilot
+✅ **ATS X-Ray**  
+✅ **Brutal AI Feedback**  
+✅ **Resume Tailoring**  
+✅ **Internship Matcher**  
+✅ **Career Roadmap**  
 
 ---
-
-## 🛠 Tech Stack
-
-- Python
-- NLP
-- Sentence Transformers
-- Groq AI
-- Streamlit
-- Plotly
-
----
-"""
+""", unsafe_allow_html=True
 )
 
-st.sidebar.success("✅ System Running")
-st.sidebar.info("🚀 AI Models Loaded")
+st.sidebar.success("🟢 Systems Operational")
+st.sidebar.info("🚀 AI Models Locked & Loaded")
 
 # -----------------------------------
 # HERO SECTION
@@ -89,27 +90,9 @@ st.sidebar.info("🚀 AI Models Loaded")
 
 st.markdown(
     """
-<div style="
-background: linear-gradient(90deg, #7C3AED, #4F46E5);
-padding: 30px;
-border-radius: 20px;
-margin-bottom: 20px;
-">
-
-<h1 style="color:white; text-align:center;">
-🚀 AI Resume Analyzer
-</h1>
-
-<h4 style="color:white; text-align:center;">
-Your Intelligent Career Assistant
-</h4>
-
-<p style="color:white; text-align:center;">
-Analyze resumes, optimize ATS score,
-generate AI feedback, and discover
-best internship opportunities.
-</p>
-
+<div class="hero-section">
+    <div class="hero-title">Stop Getting Ghosted by Recruiters.</div>
+    <div class="hero-subtitle">Let AI roast, fix and optimize your resume.</div>
 </div>
 """,
     unsafe_allow_html=True,
@@ -137,9 +120,9 @@ st.divider()
 # -----------------------------------
 
 uploaded_file = st.file_uploader(
-    "📄 Upload Your Resume",
+    "📄 Yeet your PDF here.",
     type=["pdf"],
-    help="Upload resume in PDF format",
+    help="We only accept PDFs because Word docs are so 2010.",
 )
 
 # -----------------------------------
@@ -151,14 +134,15 @@ st.subheader("📝 Job Description")
 with st.form("jd_form"):
 
     job_description = st.text_area(
-        "Paste Job Description"
+        "Paste the internship/job description here...",
+        height=150
     )
 
     col1, col2 = st.columns([8, 2])
 
     with col2:
         submit_button = st.form_submit_button(
-            "🚀 Analyze"
+            "✨ Cook My Resume"
         )
 
 # -----------------------------------
@@ -201,18 +185,13 @@ if uploaded_file:
 
     skills = extract_skills(resume_text)
 
-    st.subheader("🧠 Detected Skills")
+    st.markdown("### 🧠 Detected Skills")
 
     if skills and len(skills) > 0:
-
-        skill_cols = st.columns(4)
-
-        for index, skill in enumerate(skills):
-            with skill_cols[index % 4]:
-                st.success(skill)
-
+        skills_html = "".join([f'<span class="skill-pill">{skill}</span>' for skill in skills])
+        st.markdown(f'<div>{skills_html}</div>', unsafe_allow_html=True)
     else:
-        st.warning("No skills detected.")
+        st.warning("Bro, where are your skills? 💀")
 
     st.divider()
 
@@ -229,7 +208,19 @@ if uploaded_file:
 
     if st.session_state.analysis_done:
 
-        with st.spinner("⚡ Calculating ATS score..."):
+        import time
+        import random
+        
+        loading_messages = [
+            "🧠 Reading your resume...",
+            "☕ Making diet cokes...",
+            "🔍 Finding hidden skills...",
+            "🤖 Talking to AI...",
+            "🚀 Optimizing...",
+            "🔥 Cooking up some heat..."
+        ]
+
+        with st.spinner(random.choice(loading_messages)):
             score = calculate_similarity(
                 resume_text,
                 job_description,
@@ -280,44 +271,59 @@ if uploaded_file:
 
         with tab1:
 
-            col1, col2 = st.columns(2)
+            col1, col2 = st.columns([1, 2])
 
             with col1:
-                st.metric(
-                    "ATS Match Score",
-                    f"{score}%",
+                # Custom ATS Gauge
+                gauge_message = "Needs seasoning."
+                if score >= 95:
+                    gauge_message = "🔥 Recruiters don't stand a chance."
+                elif score >= 85:
+                    gauge_message = "You're cooking. 🍳"
+                elif score >= 70:
+                    gauge_message = "Almost there."
+                elif score >= 50:
+                    gauge_message = "Needs seasoning. 🧂"
+                else:
+                    gauge_message = "Who let bro upload this 💀"
+                
+                # Map score to degrees (0-100 to 0-360deg for conic gradient)
+                score_deg = int((score / 100) * 360)
+                
+                st.markdown(
+                    f"""
+                    <div class="gauge-container">
+                        <div class="gauge-circle" style="--score: {score_deg}deg;">
+                            <span class="gauge-score">{score}%</span>
+                        </div>
+                        <div class="gauge-text">{gauge_message}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
                 )
 
             with col2:
-                st.metric(
-                    "Skill Match",
-                    f"{skill_match}%",
+                st.markdown(
+                    f"""
+                    <div class="glass-card">
+                        <h3>Skill Match: {skill_match}%</h3>
+                        <p style="color: #a1a1aa;">Based on the provided job description.</p>
+                    </div>
+                    """, unsafe_allow_html=True
                 )
 
-            if score >= 85:
-                st.success("🔥 Strong ATS Optimization")
+                st.markdown("### ⚠️ Missing Power-Ups")
 
-            elif score >= 70:
-                st.info("✅ Good Resume Alignment")
-
-            else:
-                st.warning("⚠️ Resume Needs Optimization")
-
-            st.markdown("### ATS Strength")
-            st.progress(int(score))
+                if missing:
+                    missing_html = "".join([f'<span class="skill-pill missing">{skill}</span>' for skill in missing])
+                    st.markdown(f'<div>{missing_html}</div>', unsafe_allow_html=True)
+                    st.info("Looks like you're missing these power-ups.")
+                else:
+                    st.success("No major skills missing! You're stacked.")
 
             st.divider()
 
-            st.markdown("## ⚠️ Missing Skills")
-
-            if missing:
-                st.warning(", ".join(missing))
-            else:
-                st.success("No major skills missing!")
-
-            st.divider()
-
-            st.markdown("## 📌 Resume Suggestions")
+            st.markdown("### 📌 Resume Roast Suggestions")
 
             suggestions = []
 
@@ -368,16 +374,26 @@ if uploaded_file:
                 y="Score",
                 text="Score",
                 title="Resume Analysis Scores",
+                color_discrete_sequence=["#8B5CF6"]
             )
 
             fig.update_traces(
                 textposition="outside"
             )
-
-            st.plotly_chart(
-                fig,
-                use_container_width=True,
+            
+            fig.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                font_color="#FAFAFA"
             )
+
+            col_chart1, col_chart2 = st.columns(2)
+            
+            with col_chart1:
+                st.plotly_chart(
+                    fig,
+                    use_container_width=True,
+                )
 
             pie_data = pd.DataFrame(
                 {
@@ -397,12 +413,20 @@ if uploaded_file:
                 names="Section",
                 values="Value",
                 title="Skills Coverage",
+                color_discrete_sequence=["#8B5CF6", "#ef4444"]
+            )
+            
+            pie_fig.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                font_color="#FAFAFA"
             )
 
-            st.plotly_chart(
-                pie_fig,
-                use_container_width=True,
-            )
+            with col_chart2:
+                st.plotly_chart(
+                    pie_fig,
+                    use_container_width=True,
+                )
 
         # ===================================
         # TAB 2 — AI FEEDBACK
@@ -410,18 +434,25 @@ if uploaded_file:
 
         with tab2:
 
-            st.markdown(
-                "## 🤖 AI Resume Feedback"
-            )
+            st.markdown("### 🤖 AI Roast & Feedback")
 
-            with st.spinner("⚡ AI processing..."):
+            with st.spinner("☕ Making diet cokes and talking to AI..."):
 
                 feedback = generate_ai_feedback(
                     resume_text,
                     job_description,
                 )
 
-                st.markdown(feedback)
+                st.markdown(
+                    f"""
+                    <div class="chat-bubble-ai">
+                        <div class="chat-avatar">🤖</div>
+                        <div class="chat-content">
+                            {feedback.replace(chr(10), "<br>")}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True
+                )
 
             report = f"""
 AI Resume Analysis Report
@@ -443,6 +474,7 @@ AI Feedback:
                 data=report,
                 file_name="resume_analysis_report.txt",
                 mime="text/plain",
+                on_click=lambda: st.toast("🎉 Resume kidnapped successfully.")
             )
 
         # ===================================
@@ -451,24 +483,37 @@ AI Feedback:
 
         with tab3:
 
-            st.markdown(
-                "## ✍️ AI Tailored Resume"
-            )
+            st.markdown("### ✍️ AI Tailored Resume")
 
-            with st.spinner("⚡ AI processing..."):
+            with st.spinner("🔥 Cooking up the perfect resume..."):
 
                 tailored_resume = tailor_resume(
                     resume_text,
                     job_description,
                 )
 
-                st.markdown(tailored_resume)
+                st.markdown(
+                    f"""
+                    <div class="code-window">
+                        <div class="code-window-header">
+                            <div class="mac-dots">
+                                <div class="mac-dot red"></div>
+                                <div class="mac-dot yellow"></div>
+                                <div class="mac-dot green"></div>
+                            </div>
+                            <span style="margin-left: 15px; color: #a1a1aa; font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem;">tailored_resume.txt</span>
+                        </div>
+                        <div class="code-window-body">{tailored_resume.replace(chr(10), "<br>")}</div>
+                    </div>
+                    """, unsafe_allow_html=True
+                )
 
             st.download_button(
                 label="📥 Download Tailored Resume",
                 data=tailored_resume,
                 file_name="tailored_resume.txt",
                 mime="text/plain",
+                on_click=lambda: st.toast("🔥 Resume cooked and downloaded.")
             )
 
         # ===================================
@@ -477,31 +522,23 @@ AI Feedback:
 
         with tab4:
 
-            st.markdown(
-                "## 💼 Recommended Internships"
-            )
+            st.markdown("### 💼 Recommended Internships")
 
-            recommendations = recommend_internships(
-                skills
-            )
+            recommendations = recommend_internships(skills)
 
             for rec in recommendations[:5]:
-
+                
                 st.markdown(
                     f"""
-### {rec['Role']}
-
-**Company:** {rec['Company']}
-
-**Location:** {rec['Location']}
-
-**Match Score:** {rec['Match']}%
-"""
+                    <div class="internship-card">
+                        <div class="internship-info">
+                            <h4>{rec['Role']} @ {rec['Company']}</h4>
+                            <p>📍 {rec['Location']}</p>
+                        </div>
+                        <div class="internship-match">{rec['Match']}% Match</div>
+                    </div>
+                    """, unsafe_allow_html=True
                 )
-
-                st.progress(int(rec["Match"]))
-
-                st.divider()
 
         # ===================================
         # TAB 5 — CAREER COPILOT
@@ -509,32 +546,33 @@ AI Feedback:
 
         with tab5:
 
-            st.markdown(
-                "## 🚀 AI Career Copilot"
-            )
+            st.markdown("### 🚀 Career Copilot")
 
             st.markdown(
                 """
-### Recommended Next Steps
-
-- Build more AI/ML projects
-- Practice DSA regularly
-- Learn LangChain and RAG
-- Deploy projects publicly
-- Contribute to open source
-- Prepare for internship interviews
-"""
+<div class="glass-card">
+    <h4>Recommended Next Steps</h4>
+    <ul style="color: #a1a1aa; line-height: 1.8;">
+        <li>Build more AI/ML projects that solve real problems.</li>
+        <li>Grind Leetcode but don't forget system design.</li>
+        <li>Learn LangChain, RAG, and Agentic AI.</li>
+        <li>Deploy projects publicly (Vercel, Streamlit Cloud).</li>
+        <li>Stop scrolling, start building.</li>
+    </ul>
+</div>
+""", unsafe_allow_html=True
             )
 
-            st.info(
-                "Your AI journey is progressing well 🚀"
-            )
-
-        
+            st.info("You're on the right track! 🚀")
 
 else:
-    st.info(
-        "📌 Upload resume and analyze."
+    st.markdown(
+        """
+        <div style="text-align: center; margin-top: 50px;">
+            <h3>No resume? Let's change that.</h3>
+            <p style="color: #a1a1aa;">Drag your PDF above to get started.</p>
+        </div>
+        """, unsafe_allow_html=True
     )
 
 # -----------------------------------
